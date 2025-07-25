@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 
 // 🔧 Importaciones generadas
 import 'firebase_options.dart';
@@ -12,14 +11,16 @@ import 'package:flutter_proyecto/screen/reportes.dart';
 import 'package:flutter_proyecto/screen/menuAdmin.dart';
 import 'package:flutter_proyecto/screen/menuCliente.dart';
 import 'package:flutter_proyecto/screen/ConfiguracionUsuarios.dart';
+import 'package:flutter_proyecto/screen/VentayCarritoCliente.dart';
+import 'package:flutter_proyecto/screen/FacturaCliente.dart';
+import 'package:flutter_proyecto/screen/InventarioCliente.dart';
+import 'package:flutter_proyecto/screen/InventarioAdmin.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // 🔐 Inicialización multiplataforma con configuración automática
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const MyApp());
 }
@@ -44,6 +45,10 @@ class MyApp extends StatelessWidget {
         '/menuAdmin': (context) => MenuAdmin(),
         '/menuCliente': (context) => MenuCliente(),
         '/configuracion': (context) => ConfiguracionUsuariosScreen(),
+        '/inventario': (context) => const InventarioClienteScreen(),
+        '/inventarioAdmin': (context) => const InventarioAdminScreen(),
+        '/ventas': (context) => const VentasClienteScreen(),
+        '/factura': (context) => const FacturaClienteScreen(),
       },
       debugShowCheckedModeBanner: false,
     );
@@ -68,9 +73,7 @@ Widget cuerpo(BuildContext context) {
   return Container(
     decoration: const BoxDecoration(
       image: DecorationImage(
-        image: NetworkImage(
-          "https://i.imgur.com/4SQ9Sw0.jpg",
-        ),
+        image: NetworkImage("https://i.imgur.com/4SQ9Sw0.jpg"),
         fit: BoxFit.cover,
       ),
     ),

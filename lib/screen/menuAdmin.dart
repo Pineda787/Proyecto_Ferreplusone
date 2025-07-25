@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MenuAdmin extends StatefulWidget {
+  const MenuAdmin({super.key});
+
   @override
   _MenuAdminState createState() => _MenuAdminState();
 }
@@ -27,7 +29,10 @@ class _MenuAdminState extends State<MenuAdmin> {
 
   void _cargarNombreUsuario(String uid) async {
     try {
-      final doc = await FirebaseFirestore.instance.collection('usuarios').doc(uid).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(uid)
+          .get();
       setState(() {
         _nombreUsuario = doc.data()?['nombre'] ?? 'Usuario';
         _isLoading = false;
@@ -52,10 +57,7 @@ class _MenuAdminState extends State<MenuAdmin> {
             child: Column(
               children: [
                 const SizedBox(height: 40),
-                Image.network(
-                  'https://i.imgur.com/CK31nrT.png',
-                  height: 280,
-                ),
+                Image.network('https://i.imgur.com/CK31nrT.png', height: 280),
                 const SizedBox(height: 20),
                 const Text(
                   'MENU',
@@ -66,9 +68,13 @@ class _MenuAdminState extends State<MenuAdmin> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                _buildMenuButton(context, 'INVENTARIO', '/inventario'),
+                _buildMenuButton(context, 'INVENTARIO', '/inventarioAdmin'),
                 _buildMenuButton(context, 'REPORTES', '/reportes'),
-                _buildMenuButton(context, 'CONFIGURACIÓN DE USUARIOS', '/configuracion'),
+                _buildMenuButton(
+                  context,
+                  'CONFIGURACIÓN DE USUARIOS',
+                  '/configuracion',
+                ),
                 const Spacer(),
                 if (_isLoading)
                   const CircularProgressIndicator(color: Colors.white)
@@ -80,7 +86,10 @@ class _MenuAdminState extends State<MenuAdmin> {
                       const SizedBox(width: 8),
                       Text(
                         _nombreUsuario,
-                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
                       ),
                     ],
                   ),
@@ -88,7 +97,10 @@ class _MenuAdminState extends State<MenuAdmin> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
                   ),
                   onPressed: () async {
                     await FirebaseAuth.instance.signOut();
@@ -96,7 +108,10 @@ class _MenuAdminState extends State<MenuAdmin> {
                   },
                   child: const Text(
                     'CERRAR SESIÓN',
-                    style: TextStyle(color: Color.fromARGB(255, 255, 87, 34), fontSize: 16),
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 255, 87, 34),
+                      fontSize: 16,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -135,10 +150,7 @@ class _MenuAdminState extends State<MenuAdmin> {
                       const Text(
                         'Desde aquí puedes gestionar inventario, reportes y configurar los usuarios del sistema.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white70,
-                        ),
+                        style: TextStyle(fontSize: 16, color: Colors.white70),
                       ),
                     ],
                   ),
@@ -160,11 +172,17 @@ class _MenuAdminState extends State<MenuAdmin> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
         onPressed: () {
-          Navigator.pushReplacementNamed(context, route); // ← navegación optimizada
+          Navigator.pushReplacementNamed(
+            context,
+            route,
+          ); // ← navegación optimizada
         },
         child: Text(
           label,
-          style: const TextStyle(color: Color.fromARGB(255, 255, 87, 34), fontSize: 16),
+          style: const TextStyle(
+            color: Color.fromARGB(255, 255, 87, 34),
+            fontSize: 16,
+          ),
         ),
       ),
     );
