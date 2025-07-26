@@ -76,6 +76,8 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
       'total': total,
       'numero': DateTime.now().millisecondsSinceEpoch,
       'fecha': DateTime.now().toString(),
+      'detalles':
+          carrito, // <-- Aquí agregamos los productos comprados con cantidades
     });
 
     await batch.commit();
