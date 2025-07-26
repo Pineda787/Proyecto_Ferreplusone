@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "602830887344",
+    "firebase_url": "https://ferreteriaplusone-default-rtdb.firebaseio.com",
+    "project_id": "ferreteriaplusone",
+    "storage_bucket": "ferreteriaplusone.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:602830887344:android:b708607e77e497f0f59e75",
+        "android_client_info": {
+          "package_name": "com.example.ferreplusone"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEMjtOGWz9Er10e8lNYMiMd2Xu3C6Gjm8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:602830887344:android:ea82c84e42c7fc4bf59e75",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEMjtOGWz9Er10e8lNYMiMd2Xu3C6Gjm8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
