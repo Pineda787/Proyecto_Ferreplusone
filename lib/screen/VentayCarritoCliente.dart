@@ -11,11 +11,32 @@ class VentasClienteScreen extends StatefulWidget {
 
 class _VentasClienteScreenState extends State<VentasClienteScreen> {
   final List<Map<String, dynamic>> carrito = [];
+  String _nombreUsuario = '';
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context, '/login');
+      });
+    } else {
+      _cargarNombreUsuario(user.uid);
+    }
+  }
+
+  void _cargarNombreUsuario(String uid) async {
+    final doc = await FirebaseFirestore.instance.collection('usuarios').doc(uid).get();
+    setState(() {
+      _nombreUsuario = doc.data()?['nombre'] ?? 'Usuario';
+      _isLoading = false;
+    });
+  }
 
   void agregarAlCarrito(Map<String, dynamic> producto, int cantidad) {
-    final existente = carrito.indexWhere(
-      (item) => item['id'] == producto['id'],
-    );
+    final existente = carrito.indexWhere((item) => item['id'] == producto['id']);
     if (existente != -1) {
       carrito[existente]['cantidad'] += cantidad;
     } else {
@@ -67,21 +88,30 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
       final docRef = productosRef.doc(item['id']);
       final snapshot = await docRef.get();
       final stockActual = snapshot.data()?['Stock'] ?? 0;
+
+      if (stockActual < item['cantidad']) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Stock insuficiente para ${item['nombre']}')),
+        );
+        return;
+      }
+
       batch.update(docRef, {'Stock': stockActual - item['cantidad']});
     }
 
     final facturaRef = firestore.collection('facturas').doc();
     batch.set(facturaRef, {
       'clienteId': uid,
+      'clienteNombre': _nombreUsuario,
+      'usuarioQueFacturó': uid,
       'total': total,
-      'numero': DateTime.now().millisecondsSinceEpoch,
-      'fecha': DateTime.now().toString(),
-      'detalles':
-          carrito, // <-- Aquí agregamos los productos comprados con cantidades
+      'numero': 'F${DateTime.now().millisecondsSinceEpoch}',
+      'fecha': DateTime.now(),
+      'esPrueba': false, // ✅ marca la factura como válida para reportes
+      'detalles': carrito,
     });
 
     await batch.commit();
-
     carrito.clear();
     setState(() {});
     Navigator.pushReplacementNamed(context, '/factura');
@@ -100,43 +130,32 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'COMPRAR PRODUCTOS',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('COMPRAR PRODUCTOS',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 20),
                   Expanded(
                     child: StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('Productos')
-                          .snapshots(),
+                      stream: FirebaseFirestore.instance.collection('Productos').snapshots(),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
                         }
                         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                          return const Center(
-                            child: Text('No hay productos disponibles.'),
-                          );
+                          return const Center(child: Text('No hay productos disponibles.'));
                         }
 
                         final productos = snapshot.data!.docs;
                         return GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 4,
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
-                                childAspectRatio: 0.7,
-                              ),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 0.7,
+                          ),
                           itemCount: productos.length,
                           itemBuilder: (context, index) {
                             final producto = productos[index];
-                            final data =
-                                producto.data() as Map<String, dynamic>;
+                            final data = producto.data() as Map<String, dynamic>;
                             data['id'] = producto.id;
 
                             return Card(
@@ -148,36 +167,30 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
                                       data['ImagenURL'],
                                       fit: BoxFit.cover,
                                       width: double.infinity,
+                                      errorBuilder: (context, error, stackTrace) =>
+                                          const Icon(Icons.broken_image,
+                                              size: 60, color: Colors.grey),
                                     ),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8),
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          data['NombreProducto'],
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
-                                        ),
+                                        Text(data['NombreProducto'],
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold, fontSize: 16)),
                                         const SizedBox(height: 4),
-                                        Text(
-                                          data['Descripcion'] ?? '',
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.black54,
-                                          ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
+                                        Text(data['Descripcion'] ?? '',
+                                            style: const TextStyle(
+                                                fontSize: 12, color: Colors.black54),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis),
                                         const SizedBox(height: 8),
                                         Text('L. ${data['Precio']}'),
+                                        const SizedBox(height: 8),
                                         ElevatedButton(
-                                          onPressed: () =>
-                                              mostrarDialogoCantidad(data),
+                                          onPressed: () => mostrarDialogoCantidad(data),
                                           child: const Text('Agregar'),
                                         ),
                                       ],
@@ -203,10 +216,8 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Carrito',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Carrito',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
                   Expanded(
                     child: ListView.builder(
@@ -216,9 +227,7 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
                         return ListTile(
                           title: Text(item['nombre']),
                           subtitle: Text('Cantidad: ${item['cantidad']}'),
-                          trailing: Text(
-                            'L. ${item['precio'] * item['cantidad']}',
-                          ),
+                          trailing: Text('L. ${item['precio'] * item['cantidad']}'),
                         );
                       },
                     ),
@@ -236,6 +245,7 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
     );
   }
 
+
   Widget _buildMenuLateral(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width * 0.25,
@@ -245,29 +255,32 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
           const SizedBox(height: 40),
           Image.network('https://i.imgur.com/CK31nrT.png', height: 280),
           const SizedBox(height: 20),
-          const Text(
-            'CLIENTE',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          const Text('CLIENTE',
+              style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
           const SizedBox(height: 30),
           _buildMenuButton(context, 'INVENTARIO', '/inventario'),
           _buildMenuButton(context, 'VENTAS', '/ventas'),
           _buildMenuButton(context, 'FACTURA', '/factura'),
           const Spacer(),
+          _isLoading
+              ? const CircularProgressIndicator(color: Colors.white)
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.person, color: Colors.white),
+                    const SizedBox(width: 8),
+                    Text(_nombreUsuario,
+                        style: const TextStyle(color: Colors.white, fontSize: 16)),
+                  ],
+                ),
+          const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
               Navigator.pushReplacementNamed(context, '/login');
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
-            child: const Text(
-              'CERRAR SESIÓN',
-              style: TextStyle(color: Colors.orange),
-            ),
+            child: const Text('CERRAR SESIÓN', style: TextStyle(color: Colors.orange)),
           ),
           const SizedBox(height: 40),
         ],
@@ -275,6 +288,8 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
     );
   }
 
+
+  // 📌 Botón modular
   Widget _buildMenuButton(BuildContext context, String text, String route) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),

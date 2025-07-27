@@ -6,13 +6,13 @@ class ConfiguracionUsuariosScreen extends StatefulWidget {
   const ConfiguracionUsuariosScreen({super.key});
 
   @override
-  State<ConfiguracionUsuariosScreen> createState() => _ConfiguracionUsuariosScreenState();
+  State<ConfiguracionUsuariosScreen> createState() =>
+      _ConfiguracionUsuariosScreenState();
 }
 
 class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScreen> {
   String _nombreAdmin = '';
   bool _isLoading = true;
-
   final List<String> _rolesDisponibles = ['admin', 'cliente'];
 
   @override
@@ -31,11 +31,13 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
   void _cargarNombreAdmin(String uid) async {
     try {
       final doc = await FirebaseFirestore.instance.collection('usuarios').doc(uid).get();
+      final datos = doc.data();
       setState(() {
-        _nombreAdmin = doc.data()?['nombre'] ?? 'Administrador';
+        _nombreAdmin = datos?['nombre'] ?? 'Administrador';
         _isLoading = false;
       });
     } catch (e) {
+      print('Error al cargar nombre de admin: $e');
       setState(() {
         _nombreAdmin = 'Error al cargar';
         _isLoading = false;
@@ -46,8 +48,6 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
   void _mostrarDialogoEditarUsuario(String docId, Map<String, dynamic> usuario) {
     final nombreController = TextEditingController(text: usuario['nombre']);
     final correoController = TextEditingController(text: usuario['correo']);
-
-    // Validar que el rol del usuario esté en la lista, si no asignar valor por defecto
     String rolTemp = _rolesDisponibles.contains(usuario['rol']) ? usuario['rol'] : 'cliente';
 
     showDialog(
@@ -58,43 +58,39 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
-                controller: nombreController,
-                decoration: const InputDecoration(labelText: 'Nombre'),
-              ),
-              TextField(
-                controller: correoController,
-                decoration: const InputDecoration(labelText: 'Correo'),
-              ),
+              TextField(controller: nombreController, decoration: const InputDecoration(labelText: 'Nombre')),
+              TextField(controller: correoController, decoration: const InputDecoration(labelText: 'Correo')),
               const SizedBox(height: 10),
               DropdownButton<String>(
                 value: rolTemp,
                 isExpanded: true,
-                items: _rolesDisponibles.map((rol) {
-                  return DropdownMenuItem(value: rol, child: Text(rol));
-                }).toList(),
+                items: _rolesDisponibles.map((rol) => DropdownMenuItem(value: rol, child: Text(rol))).toList(),
                 onChanged: (value) {
                   if (value != null) {
-                    setDialogState(() {
-                      rolTemp = value;
-                    });
+                    setDialogState(() => rolTemp = value);
                   }
                 },
               ),
             ],
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
-            ),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
             ElevatedButton(
               onPressed: () async {
+                if (nombreController.text.trim().isEmpty || correoController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Nombre y correo no pueden estar vacíos')),
+                  );
+                  return;
+                }
                 await FirebaseFirestore.instance.collection('usuarios').doc(docId).update({
                   'nombre': nombreController.text,
                   'correo': correoController.text,
                   'rol': rolTemp,
                 });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Usuario actualizado')),
+                );
                 Navigator.pop(context);
               },
               child: const Text('Guardar'),
@@ -112,10 +108,7 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
         title: const Text('Confirmar eliminación'),
         content: const Text('¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
             onPressed: () => Navigator.pop(context, true),
@@ -156,6 +149,9 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return const Center(child: CircularProgressIndicator());
                         }
+                        if (snapshot.hasError) {
+                          return Center(child: Text('Error: ${snapshot.error}'));
+                        }
                         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                           return const Center(child: Text('No hay usuarios registrados.'));
                         }
@@ -187,15 +183,11 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
                                   children: [
                                     IconButton(
                                       icon: const Icon(Icons.edit, color: Colors.blueAccent),
-                                      onPressed: () {
-                                        _mostrarDialogoEditarUsuario(docId, usuario);
-                                      },
+                                      onPressed: () => _mostrarDialogoEditarUsuario(docId, usuario),
                                     ),
                                     IconButton(
                                       icon: const Icon(Icons.delete, color: Colors.orange),
-                                      onPressed: () {
-                                        _confirmarEliminacionUsuario(docId);
-                                      },
+                                      onPressed: () => _confirmarEliminacionUsuario(docId),
                                     ),
                                   ],
                                 ),
@@ -226,22 +218,21 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
           const SizedBox(height: 20),
           const Text('ADMIN', style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
           const SizedBox(height: 30),
-          _buildMenuButton(context, 'INVENTARIO', '/inventario'),
-          _buildMenuButton(context, 'REPORTES', '/reportes'),
-          _buildMenuButton(context, 'CONFIGURACIÓN DE USUARIOS', '/configuracion'),
+                _buildMenuButton(context, 'INVENTARIO', '/inventarioAdmin'),
+                _buildMenuButton(context, 'REPORTES', '/reportes'),
+                _buildMenuButton(context, 'CONFIGURACIÓN DE USUARIOS', '/configuracion'),
           _buildMenuButton(context, 'VOLVER AL MENÚ', '/menuAdmin'),
           const Spacer(),
-          if (_isLoading)
-            const CircularProgressIndicator(color: Colors.white)
-          else
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.person, color: Colors.white),
-                const SizedBox(width: 8),
-                Text(_nombreAdmin, style: const TextStyle(color: Colors.white, fontSize: 16)),
-              ],
-            ),
+          _isLoading
+              ? const CircularProgressIndicator(color: Colors.white)
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.person, color: Colors.white),
+                    const SizedBox(width: 8),
+                    Text(_nombreAdmin, style: const TextStyle(color: Colors.white, fontSize: 16)),
+                  ],
+                ),
           const SizedBox(height: 10),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -259,6 +250,7 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
       ),
     );
   }
+
 
   Widget _buildMenuButton(BuildContext context, String label, String route) {
     return Padding(
