@@ -47,13 +47,15 @@ class _MenuAdminState extends State<MenuAdmin> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       body: Row(
         children: [
-          // 🟧 Menú lateral
+          // 🟧 Menú lateral intacto sin efectos
           Container(
-            width: MediaQuery.of(context).size.width * 0.25,
-            color: const Color.fromARGB(255, 255, 87, 34),
+            width: screenWidth * 0.25,
+            color: Colors.orange,
             child: Column(
               children: [
                 const SizedBox(height: 40),
@@ -70,11 +72,7 @@ class _MenuAdminState extends State<MenuAdmin> {
                 const SizedBox(height: 30),
                 _buildMenuButton(context, 'INVENTARIO', '/inventarioAdmin'),
                 _buildMenuButton(context, 'REPORTES', '/reportes'),
-                _buildMenuButton(
-                  context,
-                  'CONFIGURACIÓN DE USUARIOS',
-                  '/configuracion',
-                ),
+                _buildMenuButton(context, 'CONFIGURACIÓN DE USUARIOS', '/configuracion'),
                 const Spacer(),
                 if (_isLoading)
                   const CircularProgressIndicator(color: Colors.white)
@@ -97,10 +95,7 @@ class _MenuAdminState extends State<MenuAdmin> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   ),
                   onPressed: () async {
                     await FirebaseAuth.instance.signOut();
@@ -109,7 +104,7 @@ class _MenuAdminState extends State<MenuAdmin> {
                   child: const Text(
                     'CERRAR SESIÓN',
                     style: TextStyle(
-                      color: Color.fromARGB(255, 255, 87, 34),
+                      color: Colors.orange,
                       fontSize: 16,
                     ),
                   ),
@@ -119,7 +114,7 @@ class _MenuAdminState extends State<MenuAdmin> {
             ),
           ),
 
-          // 🧾 Panel derecho con fondo estilizado
+          // 🎯 Panel derecho con efectos visuales SIN alterar el menú
           Expanded(
             child: Stack(
               fit: StackFit.expand,
@@ -172,15 +167,12 @@ class _MenuAdminState extends State<MenuAdmin> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
         onPressed: () {
-          Navigator.pushReplacementNamed(
-            context,
-            route,
-          ); // ← navegación optimizada
+          Navigator.pushReplacementNamed(context, route);
         },
         child: Text(
           label,
           style: const TextStyle(
-            color: Color.fromARGB(255, 255, 87, 34),
+            color: Colors.orange,
             fontSize: 16,
           ),
         ),
