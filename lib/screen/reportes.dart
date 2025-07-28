@@ -70,7 +70,7 @@ class _ReportesScreenState extends State<ReportesScreen> {
 
           final mes = DateFormat('MMM yyyy', 'es_ES').format(fecha);
 
-          // 🧮 Simulación de ganancia: entre 30% y 60% del total
+          //  Simulación de ganancia: entre 30% y 60% del total
           final porcentaje = 0.3 + rand.nextDouble() * 0.3;
           final ganancia = total * porcentaje;
 

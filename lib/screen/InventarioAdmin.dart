@@ -317,7 +317,7 @@ class _InventarioAdminScreenState extends State<InventarioAdminScreen> {
     );
   }
 
-  // 🔧 Widget para crear botón de menú
+  //  Widget para crear botón de menú
   Widget _buildMenuButton(BuildContext context, String label, String route) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -337,7 +337,7 @@ class _InventarioAdminScreenState extends State<InventarioAdminScreen> {
     );
   }
 
-  // 🛠️ Widget para tarjeta de producto con controles admin
+  //  Widget para tarjeta de producto con controles admin
   Widget _buildProductCard(
     String productId,
     Map<String, dynamic> data,
@@ -365,7 +365,7 @@ class _InventarioAdminScreenState extends State<InventarioAdminScreen> {
         ),
         child: Column(
           children: [
-            // 🏷️ Imagen del producto
+            //  Imagen del producto
             Expanded(
               flex: 4,
               child: Container(
@@ -426,7 +426,7 @@ class _InventarioAdminScreenState extends State<InventarioAdminScreen> {
               ),
             ),
 
-            // 📋 Información del producto
+            //  Información del producto
             Expanded(
               flex: 3,
               child: Padding(
@@ -483,7 +483,7 @@ class _InventarioAdminScreenState extends State<InventarioAdminScreen> {
               ),
             ),
 
-            // 🎛️ Controles de admin
+            //  Controles de admin
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -539,7 +539,7 @@ class _InventarioAdminScreenState extends State<InventarioAdminScreen> {
     );
   }
 
-  // 🔘 Widget para botones de control de stock
+  //  Widget para botones de control de stock
   Widget _buildStockButton(
     IconData icon,
     Color color,
@@ -564,7 +564,7 @@ class _InventarioAdminScreenState extends State<InventarioAdminScreen> {
     );
   }
 
-  // ➕ Mostrar diálogo para nuevo producto
+  //  Mostrar diálogo para nuevo producto
   void _mostrarDialogoNuevoProducto() {
     final nombreController = TextEditingController();
     final descripcionController = TextEditingController();
@@ -662,7 +662,7 @@ class _InventarioAdminScreenState extends State<InventarioAdminScreen> {
     );
   }
 
-  // ✏️ Mostrar diálogo para editar producto
+  //  Mostrar diálogo para editar producto
   void _mostrarDialogoEditarProducto(
     String productId,
     Map<String, dynamic> data,
@@ -768,7 +768,7 @@ class _InventarioAdminScreenState extends State<InventarioAdminScreen> {
     );
   }
 
-  // 📝 Widget para campos de texto del diálogo
+  //  Widget para campos de texto del diálogo
   Widget _buildDialogTextField(
     TextEditingController controller,
     String label,
@@ -793,7 +793,7 @@ class _InventarioAdminScreenState extends State<InventarioAdminScreen> {
     );
   }
 
-  // 🔢 Ajustar stock de producto
+  //  Ajustar stock de producto
   Future<void> _ajustarStock(String productId, int nuevoStock) async {
     if (nuevoStock < 0) return;
 
@@ -820,7 +820,7 @@ class _InventarioAdminScreenState extends State<InventarioAdminScreen> {
     }
   }
 
-  // 📦 Crear nuevo producto
+  //  Crear nuevo producto
   Future<void> _crearNuevoProducto(
     String nombre,
     String descripcion,
@@ -856,7 +856,7 @@ class _InventarioAdminScreenState extends State<InventarioAdminScreen> {
     }
   }
 
-  // ✏️ Actualizar producto existente
+  //  Actualizar producto existente
   Future<void> _actualizarProducto(
     String productId,
     String nombre,
@@ -896,7 +896,7 @@ class _InventarioAdminScreenState extends State<InventarioAdminScreen> {
     }
   }
 
-  // ❌ Confirmar eliminación de producto
+  //  Confirmar eliminación de producto
   void _confirmarEliminarProducto(String productId, String nombreProducto) {
     showDialog(
       context: context,
@@ -944,7 +944,7 @@ class _InventarioAdminScreenState extends State<InventarioAdminScreen> {
     );
   }
 
-  // 🗑️ Eliminar producto
+  //  Eliminar producto
   Future<void> _eliminarProducto(String productId) async {
     try {
       await FirebaseFirestore.instance

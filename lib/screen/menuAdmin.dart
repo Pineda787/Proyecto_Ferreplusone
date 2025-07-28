@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'widgets/venta_y_carrito_content.dart';
-import 'widgets/venta_y_carrito_drawer.dart';
+import 'widgets/menuAdminContent.dart';
+import 'widgets/menuAdminDrawer.dart';
 
 class MenuAdmin extends StatefulWidget {
   const MenuAdmin({super.key});
@@ -45,14 +45,14 @@ class _MenuAdminState extends State<MenuAdmin> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-     final isMobile = MediaQuery.of(context).size.width < 600;
+@override
+Widget build(BuildContext context) {
+  final isMobile = MediaQuery.of(context).size.width < 600;
 
   return Scaffold(
-    appBar: isMobile ? AppBar(title: const Text('Venta y Carrito')) : null,
+    appBar: isMobile ? AppBar(title: const Text('Panel Administrativo')) : null,
     drawer: isMobile
-        ? VentaYCarritoDrawer(
+        ? MenuAdminDrawer(
             auth: FirebaseAuth.instance,
             nombreUsuario: _nombreUsuario,
             isLoading: _isLoading,
@@ -64,21 +64,15 @@ class _MenuAdminState extends State<MenuAdmin> {
           Container(
             width: MediaQuery.of(context).size.width * 0.25,
             color: Colors.orange,
-            child: VentaYCarritoContent(
+            child: MenuAdminDrawer(
               auth: FirebaseAuth.instance,
               nombreUsuario: _nombreUsuario,
               isLoading: _isLoading,
             ),
           ),
-        Expanded(child: _buildPanelVentaCarrito()),
+        Expanded(child: buildMainContent()), // Aquí muestras el contenido principal
       ],
     ),
-  );
-}
-
-Widget _buildPanelVentaCarrito() {
-  return Center(
-    child: Text('Aquí va el panel de venta y carrito'),
   );
 }
 

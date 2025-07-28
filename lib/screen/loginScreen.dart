@@ -28,10 +28,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _checkFirebaseConnection() {
     try {
-      print("🔥 Firebase Auth inicializado: ${_auth.app.name}");
-      print("🔥 Usuario actual: ${_auth.currentUser}");
+      print(" Firebase Auth inicializado: ${_auth.app.name}");
+      print(" Usuario actual: ${_auth.currentUser}");
     } catch (e) {
-      print("❌ Error al verificar Firebase Auth: $e");
+      print(" Error al verificar Firebase Auth: $e");
     }
   }
 

@@ -21,39 +21,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isLoading = false;
 
   Future<void> _handleRegister() async {
-    print("🔐 Iniciando proceso de registro...");
+    print(" Iniciando proceso de registro...");
     if (!_formKey.currentState!.validate()) {
-      print("❌ Validación del formulario falló");
+      print(" Validación del formulario falló");
       return;
     }
 
     _formKey.currentState!.save();
     setState(() => _isLoading = true);
-    print("📧 Email: $_email");
-    print("👤 Nombre: $_name");
+    print(" Email: $_email");
+    print(" Nombre: $_name");
 
     try {
-      print("🔥 Creando usuario en Firebase Auth...");
+      print(" Creando usuario en Firebase Auth...");
       final userCredential = await _auth.createUserWithEmailAndPassword(
         email: _email.trim(),
         password: _password.trim(),
       );
-      print("✅ Usuario creado en Auth con UID: ${userCredential.user!.uid}");
+      print(" Usuario creado en Auth con UID: ${userCredential.user!.uid}");
 
       final uid = userCredential.user!.uid;
 
-      print("📄 Guardando datos en Firestore...");
+      print(" Guardando datos en Firestore...");
       await _firestore.collection('usuarios').doc(uid).set({
         'nombre': _name.trim(),
         'correo': _email.trim(),
         'direccion': _address.trim(),
         'rol': 'cliente',
       });
-      print("✅ Datos guardados en Firestore");
+      print(" Datos guardados en Firestore");
 
       final doc = await _firestore.collection('usuarios').doc(uid).get();
       if (doc.exists) {
-        print("✅ Documento verificado en Firestore");
+        print(" Documento verificado en Firestore");
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -64,12 +64,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         throw Exception('No se pudo verificar el documento en Firestore');
       }
     } on FirebaseAuthException catch (e) {
-      print("❌ Error de FirebaseAuth: ${e.code} - ${e.message}");
+      print(" Error de FirebaseAuth: ${e.code} - ${e.message}");
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(e.message ?? 'Error desconocido')));
     } catch (e) {
-      print("❌ Error general: $e");
+      print(" Error general: $e");
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Error al guardar datos: $e')));
@@ -185,7 +185,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ],
             ),
           ),
-          // 🎨 Panel derecho con imagen oscura y formulario
+          //  Panel derecho con imagen oscura y formulario
           Expanded(
             child: Stack(
               fit: StackFit.expand,
@@ -227,7 +227,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  // 🎨 Estilos compartidos
+  //  Estilos compartidos
   final TextStyle menuTextStyle = const TextStyle(
     color: Colors.white,
     fontSize: 28,

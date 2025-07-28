@@ -15,48 +15,66 @@ class MenuAdminContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(height: 40),
-        Image.network('https://i.imgur.com/CK31nrT.png', height: 280),
-        const SizedBox(height: 20),
-        const Text('MENU', style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 30),
-        _buildMenuButton(context, 'INVENTARIO', '/inventarioAdmin'),
-        _buildMenuButton(context, 'REPORTES', '/reportes'),
-        _buildMenuButton(context, 'CONFIGURACIÓN DE USUARIOS', '/configuracion'),
-        const Spacer(),
-        isLoading
-            ? const CircularProgressIndicator(color: Colors.white)
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.person, color: Colors.white),
-                  const SizedBox(width: 8),
-                  Text(nombreUsuario, style: const TextStyle(color: Colors.white, fontSize: 16)),
-                ],
-              ),
-        const SizedBox(height: 10),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
-          onPressed: () async {
-            await auth.signOut();
-            Navigator.pushReplacementNamed(context, '/login');
-          },
-          child: const Text('CERRAR SESIÓN', style: TextStyle(color: Colors.orange, fontSize: 16)),
-        ),
-        const SizedBox(height: 40),
-      ],
+    return Container(
+      color: Colors.orange,
+      child: Column(
+        children: [
+          const SizedBox(height: 40),
+          Image.network('https://i.imgur.com/CK31nrT.png', height: 280),
+          const SizedBox(height: 20),
+          const Text(
+            'MENÚ ADMIN',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 40),
+          _boton(context, 'INVENTARIO', '/inventarioAdmin'),
+          _boton(context, 'REPORTES', '/reportes'),
+          _boton(context, 'CONFIGURAR USUARIOS', '/configuracion'),
+          const Spacer(),
+          isLoading
+              ? const CircularProgressIndicator(color: Colors.white)
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.person, color: Colors.white),
+                    const SizedBox(width: 8),
+                    Text(nombreUsuario, style: const TextStyle(color: Colors.white)),
+                  ],
+                ),
+          const SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: () async {
+              await auth.signOut();
+              Navigator.pushReplacementNamed(context, '/login');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.orange,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            child: const Text('SALIR'),
+          ),
+          const SizedBox(height: 40),
+        ],
+      ),
     );
   }
 
-  Widget _buildMenuButton(BuildContext context, String label, String route) {
+  Widget _boton(BuildContext context, String label, String ruta) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: ElevatedButton(
-        style: ElevatedButton.styleFrom(backgroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
-        onPressed: () => Navigator.pushReplacementNamed(context, route),
-        child: Text(label, style: const TextStyle(color: Colors.orange, fontSize: 16)),
+        onPressed: () => Navigator.pushReplacementNamed(context, ruta),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.orange,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        ),
+        child: Text(label),
       ),
     );
   }

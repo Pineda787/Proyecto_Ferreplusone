@@ -94,10 +94,10 @@ class _FacturaClienteScreenState extends State<FacturaClienteScreen> {
         final filePath = '$directoryPath/$name';
         final file = File(filePath);
         await file.writeAsBytes(bytes);
-        debugPrint('✅ Factura guardada en $filePath');
+        debugPrint('Factura guardada en $filePath');
       }
     } else {
-      debugPrint('📦 Descarga TXT no disponible en Web en esta versión.');
+      debugPrint('Descarga TXT no disponible en Web en esta versión.');
     }
   }
 
