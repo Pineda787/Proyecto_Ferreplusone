@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'widgets/InventarioClienteDrawer.dart';
+import 'widgets/InventarioClienteContent.dart';
 
 class InventarioClienteScreen extends StatefulWidget {
   const InventarioClienteScreen({super.key});
@@ -45,24 +47,33 @@ class _InventarioClienteScreenState extends State<InventarioClienteScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
 
     return Scaffold(
-      body: Row(
-        children: [
-          // 🟧 Menú lateral estilo cliente
+      appBar: isMobile ? AppBar(title: const Text('Pantalla Cliente')) : null,
+    drawer: isMobile
+        ? InventarioClienteDrawer(
+            auth: FirebaseAuth.instance,
+            nombreUsuario: _nombreUsuario,
+            isLoading: _isLoading,
+          )
+        : null,
+    body: Row(
+      children: [
+        if (!isMobile)
           Container(
             width: screenWidth * 0.25,
             color: Colors.orange,
             child: Column(
               children: [
                 const SizedBox(height: 40),
-                Image.network('https://i.imgur.com/CK31nrT.png', height: 280),
+                Image.network('https://i.imgur.com/CK31nrT.png', height: 180),
                 const SizedBox(height: 20),
                 const Text(
                   'CLIENTE',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 28,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -71,40 +82,49 @@ class _InventarioClienteScreenState extends State<InventarioClienteScreen> {
                 _buildMenuButton(context, 'VENTA Y CARRITO', '/ventaCarrito'),
                 _buildMenuButton(context, 'FACTURAS', '/facturas'),
                 _buildMenuButton(context, 'VOLVER AL MENÚ', '/menuCliente'),
-
                 const Spacer(),
                 _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.person, color: Colors.white),
-                          const SizedBox(width: 8),
-                          Text(
-                            _nombreUsuario,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.person, color: Colors.white),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _nombreUsuario,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                 const SizedBox(height: 10),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.orange,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
                     ),
-                  ),
-                  onPressed: () async {
-                    await FirebaseAuth.instance.signOut();
-                    Navigator.pushReplacementNamed(context, '/login');
-                  },
-                  child: const Text(
-                    'CERRAR SESIÓN',
-                    style: TextStyle(color: Colors.orange, fontSize: 16),
+                    icon: const Icon(Icons.logout),
+                    label: const Text(
+                      'CERRAR SESIÓN',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    onPressed: () async {
+                      await FirebaseAuth.instance.signOut();
+                      Navigator.pushReplacementNamed(context, '/login');
+                    },
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -112,7 +132,8 @@ class _InventarioClienteScreenState extends State<InventarioClienteScreen> {
             ),
           ),
 
-          // 🛠️ Panel principal - Vista de inventario
+
+          //  Panel principal - Vista de inventario
           Expanded(
             child: Container(
               decoration: const BoxDecoration(
@@ -124,7 +145,7 @@ class _InventarioClienteScreenState extends State<InventarioClienteScreen> {
               ),
               child: Column(
                 children: [
-                  // 📋 Header con título
+                  //  Header con título
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -176,7 +197,7 @@ class _InventarioClienteScreenState extends State<InventarioClienteScreen> {
                     ),
                   ),
 
-                  // 🔍 Barra de búsqueda
+                  //  Barra de búsqueda
                   Container(
                     padding: const EdgeInsets.all(20),
                     child: TextField(
@@ -209,7 +230,7 @@ class _InventarioClienteScreenState extends State<InventarioClienteScreen> {
                     ),
                   ),
 
-                  // 📦 Grid de productos
+                  // Grid de productos
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -300,7 +321,7 @@ class _InventarioClienteScreenState extends State<InventarioClienteScreen> {
     );
   }
 
-  // 🔧 Widget para crear botón de menú
+  //  Widget para crear botón de menú
   Widget _buildMenuButton(BuildContext context, String label, String route) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -320,7 +341,7 @@ class _InventarioClienteScreenState extends State<InventarioClienteScreen> {
     );
   }
 
-  // 🛠️ Widget para tarjeta de producto (solo vista)
+  // Widget para tarjeta de producto (solo vista)
   Widget _buildProductCard(Map<String, dynamic> data, int stock) {
     final stockBajo = stock < 10;
     final disponible = stock > 0;
@@ -429,7 +450,7 @@ class _InventarioClienteScreenState extends State<InventarioClienteScreen> {
               ),
             ),
 
-            // 📋 Información del producto
+            //  Información del producto
             Expanded(
               flex: 3,
               child: Padding(
@@ -493,7 +514,7 @@ class _InventarioClienteScreenState extends State<InventarioClienteScreen> {
               ),
             ),
 
-            // 🎯 Estado de disponibilidad
+            //  Estado de disponibilidad
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(

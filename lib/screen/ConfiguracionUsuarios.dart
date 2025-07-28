@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'widgets/configuracion_menu.dart';
+import 'widgets/lista_usuarios.dart';
+import 'dart:ui';
+
 
 class ConfiguracionUsuariosScreen extends StatefulWidget {
   const ConfiguracionUsuariosScreen({super.key});
@@ -163,175 +167,112 @@ class _ConfiguracionUsuariosScreenState
   }
 
   @override
+  Widget _buildPanelConLista() {
+  return Container(
+    color: Colors.white,
+    padding: const EdgeInsets.all(24),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('CONFIGURACIÓN DE USUARIOS', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 20),
+        Expanded(
+          child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance.collection('usuarios').snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return const Center(child: Text('No hay usuarios registrados.'));
+              }
+
+              final usuarios = snapshot.data!.docs;
+
+              return ListView.builder(
+                itemCount: usuarios.length,
+                itemBuilder: (context, index) {
+                  final usuario = usuarios[index].data() as Map<String, dynamic>;
+                  final docId = usuarios[index].id;
+
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    elevation: 2,
+                    child: ListTile(
+                      leading: const Icon(Icons.person),
+                      title: Text(usuario['nombre'] ?? 'Sin nombre'),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(usuario['correo'] ?? 'Sin correo'),
+                          Text('Rol: ${usuario['rol'] ?? 'No definido'}'),
+                        ],
+                      ),
+                      isThreeLine: true,
+                      trailing: Wrap(
+                        spacing: 12,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blueAccent),
+                            onPressed: () => _mostrarDialogoEditarUsuario(docId, usuario),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.orange),
+                            onPressed: () => _confirmarEliminacionUsuario(docId),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+
     return Scaffold(
+      appBar: isMobile ? AppBar(title: const Text('Configuración de Usuarios')) : null,
+      drawer: isMobile ? const ConfiguracionMenuDrawer() : null,
       body: Row(
         children: [
-          _buildMenuLateral(context),
-          Expanded(
-            child: Container(
-              color: Colors.white,
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'CONFIGURACIÓN DE USUARIOS',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 20),
-                  Expanded(
-                    child: StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('usuarios')
-                          .snapshots(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        if (snapshot.hasError) {
-                          return Center(
-                            child: Text('Error: ${snapshot.error}'),
-                          );
-                        }
-                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                          return const Center(
-                            child: Text('No hay usuarios registrados.'),
-                          );
-                        }
-
-                        final usuarios = snapshot.data!.docs;
-
-                        return ListView.builder(
-                          itemCount: usuarios.length,
-                          itemBuilder: (context, index) {
-                            final usuario =
-                                usuarios[index].data() as Map<String, dynamic>;
-                            final docId = usuarios[index].id;
-
-                            return Card(
-                              margin: const EdgeInsets.symmetric(vertical: 8),
-                              elevation: 2,
-                              child: ListTile(
-                                leading: const Icon(Icons.person),
-                                title: Text(usuario['nombre'] ?? 'Sin nombre'),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(usuario['correo'] ?? 'Sin correo'),
-                                    Text(
-                                      'Rol: ${usuario['rol'] ?? 'No definido'}',
-                                    ),
-                                  ],
-                                ),
-                                isThreeLine: true,
-                                trailing: Wrap(
-                                  spacing: 12,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.edit,
-                                        color: Colors.blueAccent,
-                                      ),
-                                      onPressed: () =>
-                                          _mostrarDialogoEditarUsuario(
-                                            docId,
-                                            usuario,
-                                          ),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.delete,
-                                        color: Colors.orange,
-                                      ),
-                                      onPressed: () =>
-                                          _confirmarEliminacionUsuario(docId),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          if (!isMobile)
+            const ConfiguracionMenuLateral(widthFraction: 0.25),
+          Expanded(child: _buildPanelPrincipal()),
         ],
       ),
     );
   }
 
-  Widget _buildMenuLateral(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.25,
-      color: Colors.orange,
-      child: Column(
-        children: [
-          const SizedBox(height: 40),
-          Image.network(
-            'https://i.imgur.com/CK31nrT.png',
-            height: 280,
-            fit: BoxFit.contain,
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'MENU',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
+  Widget _buildPanelPrincipal() {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
+            child: Image.network(
+              'https://i.imgur.com/qxRSDQR.jpg',
+              fit: BoxFit.cover,
             ),
           ),
-          const SizedBox(height: 30),
-          _buildMenuButton(context, 'INVENTARIO', '/inventarioAdmin'),
-          _buildMenuButton(context, 'REPORTES', '/reportes'),
-          _buildMenuButton(
-            context,
-            'CONFIGURACIÓN DE USUARIOS',
-            '/configuracion',
-          ),
-          _buildMenuButton(context, 'VOLVER AL MENÚ', '/menuAdmin'),
-          const Spacer(),
-          _isLoading
-              ? const CircularProgressIndicator(color: Colors.white)
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.person, color: Colors.white),
-                    const SizedBox(width: 8),
-                    Text(
-                      _nombreAdmin,
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                  ],
-                ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            ),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.pushReplacementNamed(context, '/login');
-            },
-            child: const Text(
-              'CERRAR SESIÓN',
-              style: TextStyle(color: Colors.orange),
-            ),
-          ),
-          const SizedBox(height: 40),
-        ],
-      ),
+        ),
+        Container(color: Colors.black.withOpacity(0.6)),
+        const ListaUsuarios(),
+      ],
     );
   }
+
+
 
   Widget _buildMenuButton(BuildContext context, String label, String route) {
     return Padding(

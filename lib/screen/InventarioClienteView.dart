@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'widgets/InventarioClienteDrawer.dart';
+import 'widgets/InventarioClienteContent.dart';
 
 class InventarioClienteViewScreen extends StatefulWidget {
   const InventarioClienteViewScreen({super.key});
@@ -113,7 +115,7 @@ class _InventarioClienteViewScreenState
             ),
           ),
 
-          // 🛠️ Panel principal - Vista de inventario
+          //  Panel principal - Vista de inventario
           Expanded(
             child: Container(
               decoration: const BoxDecoration(
@@ -125,7 +127,7 @@ class _InventarioClienteViewScreenState
               ),
               child: Column(
                 children: [
-                  // 📋 Header con título
+                  //  Header con título
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -177,7 +179,7 @@ class _InventarioClienteViewScreenState
                     ),
                   ),
 
-                  // 🔍 Barra de búsqueda
+                  //  Barra de búsqueda
                   Container(
                     padding: const EdgeInsets.all(20),
                     child: TextField(
@@ -210,7 +212,7 @@ class _InventarioClienteViewScreenState
                     ),
                   ),
 
-                  // 📦 Grid de productos
+                  //  Grid de productos
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -301,7 +303,7 @@ class _InventarioClienteViewScreenState
     );
   }
 
-  // 🔧 Widget para crear botón de menú
+  //  Widget para crear botón de menú
   Widget _buildMenuButton(BuildContext context, String label, String route) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -321,7 +323,7 @@ class _InventarioClienteViewScreenState
     );
   }
 
-  // 🛠️ Widget para tarjeta de producto (solo vista)
+  //  Widget para tarjeta de producto (solo vista)
   Widget _buildProductCard(Map<String, dynamic> data, int stock) {
     final stockBajo = stock < 10;
     final disponible = stock > 0;
@@ -430,7 +432,7 @@ class _InventarioClienteViewScreenState
               ),
             ),
 
-            // 📋 Información del producto
+            //  Información del producto
             Expanded(
               flex: 3,
               child: Padding(
@@ -494,7 +496,7 @@ class _InventarioClienteViewScreenState
               ),
             ),
 
-            // 🎯 Estado de disponibilidad
+            //  Estado de disponibilidad
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
