@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class InventarioClienteScreen extends StatefulWidget {
-  const InventarioClienteScreen({super.key});
+class InventarioClienteViewScreen extends StatefulWidget {
+  const InventarioClienteViewScreen({super.key});
 
   @override
-  State<InventarioClienteScreen> createState() =>
-      _InventarioClienteScreenState();
+  State<InventarioClienteViewScreen> createState() =>
+      _InventarioClienteViewScreenState();
 }
 
-class _InventarioClienteScreenState extends State<InventarioClienteScreen> {
+class _InventarioClienteViewScreenState
+    extends State<InventarioClienteViewScreen> {
   String _nombreUsuario = '';
   bool _isLoading = true;
   String _searchQuery = '';

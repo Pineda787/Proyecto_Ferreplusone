@@ -21,43 +21,58 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isLoading = false;
 
   Future<void> _handleRegister() async {
-    if (!_formKey.currentState!.validate()) return;
+    print("🔐 Iniciando proceso de registro...");
+    if (!_formKey.currentState!.validate()) {
+      print("❌ Validación del formulario falló");
+      return;
+    }
 
     _formKey.currentState!.save();
     setState(() => _isLoading = true);
+    print("📧 Email: $_email");
+    print("👤 Nombre: $_name");
 
     try {
+      print("🔥 Creando usuario en Firebase Auth...");
       final userCredential = await _auth.createUserWithEmailAndPassword(
         email: _email.trim(),
         password: _password.trim(),
       );
+      print("✅ Usuario creado en Auth con UID: ${userCredential.user!.uid}");
 
       final uid = userCredential.user!.uid;
 
+      print("📄 Guardando datos en Firestore...");
       await _firestore.collection('usuarios').doc(uid).set({
         'nombre': _name.trim(),
         'correo': _email.trim(),
         'direccion': _address.trim(),
         'rol': 'cliente',
       });
+      print("✅ Datos guardados en Firestore");
 
       final doc = await _firestore.collection('usuarios').doc(uid).get();
       if (doc.exists) {
+        print("✅ Documento verificado en Firestore");
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('¡Registro exitoso! Por favor, inicia sesión.')),
+          SnackBar(
+            content: Text('¡Registro exitoso! Por favor, inicia sesión.'),
+          ),
         );
       } else {
         throw Exception('No se pudo verificar el documento en Firestore');
       }
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'Error desconocido')),
-      );
+      print("❌ Error de FirebaseAuth: ${e.code} - ${e.message}");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message ?? 'Error desconocido')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al guardar datos.')),
-      );
+      print("❌ Error general: $e");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error al guardar datos: $e')));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -80,31 +95,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
           const SizedBox(height: 24),
           TextFormField(
             decoration: const InputDecoration(labelText: 'Nombre Completo'),
-            validator: (value) =>
-                value == null || value.trim().isEmpty ? 'El nombre es requerido' : null,
+            validator: (value) => value == null || value.trim().isEmpty
+                ? 'El nombre es requerido'
+                : null,
             onSaved: (value) => _name = value ?? '',
           ),
           const SizedBox(height: 16),
           TextFormField(
             decoration: const InputDecoration(labelText: 'Correo Electrónico'),
             keyboardType: TextInputType.emailAddress,
-            validator: (value) =>
-                value == null || !value.contains('@') ? 'Correo no válido' : null,
+            validator: (value) => value == null || !value.contains('@')
+                ? 'Correo no válido'
+                : null,
             onSaved: (value) => _email = value ?? '',
           ),
           const SizedBox(height: 16),
           TextFormField(
             obscureText: true,
             decoration: const InputDecoration(labelText: 'Contraseña'),
-            validator: (value) =>
-                value == null || value.length < 6 ? 'Debe tener al menos 6 caracteres' : null,
+            validator: (value) => value == null || value.length < 6
+                ? 'Debe tener al menos 6 caracteres'
+                : null,
             onSaved: (value) => _password = value ?? '',
           ),
           const SizedBox(height: 16),
           TextFormField(
             decoration: const InputDecoration(labelText: 'Dirección'),
-            validator: (value) =>
-                value == null || value.trim().isEmpty ? 'La dirección es requerida' : null,
+            validator: (value) => value == null || value.trim().isEmpty
+                ? 'La dirección es requerida'
+                : null,
             onSaved: (value) => _address = value ?? '',
           ),
           const SizedBox(height: 24),
@@ -113,10 +132,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
               : ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 15,
+                    ),
                   ),
                   onPressed: _handleRegister,
-                  child: const Text('Registrarse', style: TextStyle(fontSize: 18)),
+                  child: const Text(
+                    'Registrarse',
+                    style: TextStyle(fontSize: 18),
+                  ),
                 ),
         ],
       ),
@@ -135,10 +160,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 40),
-                Image.network(
-                  'https://i.imgur.com/CK31nrT.png',
-                  height: 280,
-                ),
+                Image.network('https://i.imgur.com/CK31nrT.png', height: 280),
                 const SizedBox(height: 20),
                 const SizedBox(height: 40),
                 Center(child: Text('MENU', style: menuTextStyle)),
@@ -173,7 +195,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   image: 'https://i.imgur.com/TtxRcj4.png',
                   fit: BoxFit.cover,
                 ),
-                Container(color: Colors.black.withOpacity(0.6)), // misma opacidad que login
+                Container(
+                  color: Colors.black.withOpacity(0.6),
+                ), // misma opacidad que login
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),

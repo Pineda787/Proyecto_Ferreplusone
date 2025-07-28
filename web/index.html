@@ -31,6 +31,14 @@
 
   <title>inventario_ferreteria</title>
   <link rel="manifest" href="manifest.json">
+  
+  <!-- Firebase compatibility configuration -->
+  <script>
+    // Configure Firebase for better web compatibility
+    if (typeof window !== 'undefined') {
+      window.flutterfire_ignore_scripts = true;
+    }
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>

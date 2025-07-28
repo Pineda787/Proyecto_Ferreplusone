@@ -1,13 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'admin_inventario_screen.dart';
-import 'cliente_inventario_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'screen/loginScreen.dart';
+import 'screen/registerScreen.dart';
+import 'screen/menuAdmin.dart';
+import 'screen/menuCliente.dart';
+import 'screen/VentayCarritoCliente.dart';
+import 'screen/FacturaCliente.dart';
+import 'screen/InventarioAdmin.dart';
+import 'screen/inventario_cliente_screen.dart';
+import 'screen/InventarioClienteView.dart';
+import 'screen/reportes.dart';
+import 'screen/ConfiguracionUsuarios.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print("🔥 Firebase inicializado correctamente");
+  } catch (e) {
+    print("❌ Error al inicializar Firebase: $e");
+  }
+
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,16 +40,29 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomeScreen(),
+      home: LoginScreen(), // Cambiar a LoginScreen en lugar de HomeScreen
       routes: {
-        '/admin': (context) => AdminInventarioScreen(),
-        '/cliente': (context) => ClienteInventarioScreen(),
+        '/home': (context) => HomeScreen(),
+        '/login': (context) => LoginScreen(),
+        '/register': (context) => RegisterScreen(),
+        '/menuAdmin': (context) => MenuAdmin(),
+        '/menuCliente': (context) => MenuCliente(),
+        '/ventaCarrito': (context) => VentasClienteScreen(),
+        '/ventas': (context) => VentasClienteScreen(),
+        '/facturas': (context) => FacturaClienteScreen(),
+        '/factura': (context) => FacturaClienteScreen(),
+        '/inventarioAdmin': (context) => InventarioAdminScreen(),
+        '/inventarioCliente': (context) => InventarioClienteViewScreen(),
+        '/reportes': (context) => ReportesScreen(),
+        '/configuracion': (context) => ConfiguracionUsuariosScreen(),
       },
     );
   }
 }
 
 class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,10 +72,7 @@ class HomeScreen extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFDCDCDC),
-              Color(0xFFE8E8E8),
-            ],
+            colors: [Color(0xFFDCDCDC), Color(0xFFE8E8E8)],
           ),
         ),
         child: Center(
@@ -61,11 +95,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Icon(
-                  Icons.inventory_2,
-                  size: 60,
-                  color: Colors.white,
-                ),
+                child: Icon(Icons.inventory_2, size: 60, color: Colors.white),
               ),
               SizedBox(height: 30),
               Text(
@@ -88,51 +118,50 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 60),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                // En pantallas pequeñas, mostrar las tarjetas en columna
-                if (constraints.maxWidth < 480) {
-                  return Column(
-                    children: [
-                      _buildRoleCard(
-                        context,
-                        'Administrador',
-                        Icons.admin_panel_settings,
-                        '/admin',
-                      ),
-                      SizedBox(height: 20),
-                      _buildRoleCard(
-                        context,
-                        'Cliente',
-                        Icons.person,
-                        '/cliente',
-                      ),
-                    ],
-                  );
-                } else {
-                  // En pantallas más grandes, mostrar en fila
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildRoleCard(
-                        context,
-                        'Administrador',
-                        Icons.admin_panel_settings,
-                        '/admin',
-                      ),
-                      SizedBox(width: 30),
-                      _buildRoleCard(
-                        context,
-                        'Cliente',
-                        Icons.person,
-                        '/cliente',
-                      ),
-                    ],
-                  );
-                }
-              },
-            ),
-
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  // En pantallas pequeñas, mostrar las tarjetas en columna
+                  if (constraints.maxWidth < 480) {
+                    return Column(
+                      children: [
+                        _buildRoleCard(
+                          context,
+                          'Administrador',
+                          Icons.admin_panel_settings,
+                          '/admin',
+                        ),
+                        SizedBox(height: 20),
+                        _buildRoleCard(
+                          context,
+                          'Cliente',
+                          Icons.person,
+                          '/cliente',
+                        ),
+                      ],
+                    );
+                  } else {
+                    // En pantallas más grandes, mostrar en fila
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildRoleCard(
+                          context,
+                          'Administrador',
+                          Icons.admin_panel_settings,
+                          '/admin',
+                        ),
+                        SizedBox(width: 30),
+                        _buildRoleCard(
+                          context,
+                          'Cliente',
+                          Icons.person,
+                          '/cliente',
+                        ),
+                      ],
+                    );
+                  }
+                },
+              ),
             ],
           ),
         ),
@@ -140,11 +169,16 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRoleCard(BuildContext context, String title, IconData icon, String route) {
+  Widget _buildRoleCard(
+    BuildContext context,
+    String title,
+    IconData icon,
+    String route,
+  ) {
     bool isAdmin = title == 'Administrador';
     Color primaryColor = isAdmin ? Color(0xFF0F2F54) : Color(0xFFFF6600);
     Color secondaryColor = isAdmin ? Color(0xFFFF6600) : Color(0xFF0F2F54);
-    
+
     return GestureDetector(
       onTap: () => Navigator.pushNamed(context, route),
       child: AnimatedContainer(
@@ -155,10 +189,7 @@ class HomeScreen extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              primaryColor,
-              primaryColor.withOpacity(0.8),
-            ],
+            colors: [primaryColor, primaryColor.withOpacity(0.8)],
           ),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
@@ -169,10 +200,7 @@ class HomeScreen extends StatelessWidget {
               offset: Offset(0, 8),
             ),
           ],
-          border: Border.all(
-            color: Colors.white.withOpacity(0.2),
-            width: 1,
-          ),
+          border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
         ),
         child: Material(
           color: Colors.transparent,
@@ -199,11 +227,7 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: Icon(
-                      icon,
-                      size: 40,
-                      color: primaryColor,
-                    ),
+                    child: Icon(icon, size: 40, color: primaryColor),
                   ),
                   SizedBox(height: 20),
                   Text(

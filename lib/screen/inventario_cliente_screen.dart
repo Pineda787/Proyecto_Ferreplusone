@@ -59,7 +59,7 @@ class _InventarioClienteScreenState extends State<InventarioClienteScreen> {
                 Image.network('https://i.imgur.com/CK31nrT.png', height: 280),
                 const SizedBox(height: 20),
                 const Text(
-                  'MENU',
+                  'CLIENTE',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 28,

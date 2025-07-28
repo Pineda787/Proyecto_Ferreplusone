@@ -28,7 +28,10 @@ class _MenuClienteState extends State<MenuCliente> {
 
   void _cargarNombreUsuario(String uid) async {
     try {
-      final doc = await FirebaseFirestore.instance.collection('usuarios').doc(uid).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(uid)
+          .get();
       setState(() {
         _nombreUsuario = doc.data()?['nombre'] ?? 'Usuario';
         _isLoading = false;
@@ -53,17 +56,14 @@ class _MenuClienteState extends State<MenuCliente> {
             child: Column(
               children: [
                 const SizedBox(height: 40),
-                Image.network(
-                  'https://i.imgur.com/CK31nrT.png',
-                  height: 280,
-                ),
+                Image.network('https://i.imgur.com/CK31nrT.png', height: 280),
                 const SizedBox(height: 20),
                 const SizedBox(height: 40),
                 Text('MENU', style: menuTextStyle),
                 const SizedBox(height: 30),
-                _buildMenuButton(context, 'INVENTARIO', '/inventario'),
-                _buildMenuButton(context, 'VENTAS', '/ventas'),
-                _buildMenuButton(context, 'FACTURA', '/factura'),
+                _buildMenuButton(context, 'INVENTARIO', '/inventarioCliente'),
+                _buildMenuButton(context, 'VENTA Y CARRITO', '/ventaCarrito'),
+                _buildMenuButton(context, 'FACTURAS', '/facturas'),
                 const Spacer(),
                 if (_isLoading)
                   const CircularProgressIndicator(color: Colors.white)
@@ -73,7 +73,10 @@ class _MenuClienteState extends State<MenuCliente> {
                     children: [
                       const Icon(Icons.person, color: Colors.white),
                       const SizedBox(width: 8),
-                      Text(_nombreUsuario, style: const TextStyle(color: Colors.white)),
+                      Text(
+                        _nombreUsuario,
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     ],
                   ),
                 const SizedBox(height: 10),
@@ -165,7 +168,7 @@ class _MenuClienteState extends State<MenuCliente> {
       child: ElevatedButton(
         style: menuButtonStyle,
         onPressed: () {
-          Navigator.pushNamed(context, route);
+          Navigator.pushReplacementNamed(context, route);
         },
         child: Text(label, style: menuButtonText),
       ),

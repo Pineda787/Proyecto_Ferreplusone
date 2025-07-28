@@ -28,7 +28,10 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
   }
 
   void _cargarNombreUsuario(String uid) async {
-    final doc = await FirebaseFirestore.instance.collection('usuarios').doc(uid).get();
+    final doc = await FirebaseFirestore.instance
+        .collection('usuarios')
+        .doc(uid)
+        .get();
     setState(() {
       _nombreUsuario = doc.data()?['nombre'] ?? 'Usuario';
       _isLoading = false;
@@ -36,7 +39,9 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
   }
 
   void agregarAlCarrito(Map<String, dynamic> producto, int cantidad) {
-    final existente = carrito.indexWhere((item) => item['id'] == producto['id']);
+    final existente = carrito.indexWhere(
+      (item) => item['id'] == producto['id'],
+    );
     if (existente != -1) {
       carrito[existente]['cantidad'] += cantidad;
     } else {
@@ -130,32 +135,43 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('COMPRAR PRODUCTOS',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'COMPRAR PRODUCTOS',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 20),
                   Expanded(
                     child: StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance.collection('Productos').snapshots(),
+                      stream: FirebaseFirestore.instance
+                          .collection('Productos')
+                          .snapshots(),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
                         }
                         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                          return const Center(child: Text('No hay productos disponibles.'));
+                          return const Center(
+                            child: Text('No hay productos disponibles.'),
+                          );
                         }
 
                         final productos = snapshot.data!.docs;
                         return GridView.builder(
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 4,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
-                            childAspectRatio: 0.7,
-                          ),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 4,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                                childAspectRatio: 0.7,
+                              ),
                           itemCount: productos.length,
                           itemBuilder: (context, index) {
                             final producto = productos[index];
-                            final data = producto.data() as Map<String, dynamic>;
+                            final data =
+                                producto.data() as Map<String, dynamic>;
                             data['id'] = producto.id;
 
                             return Card(
@@ -167,30 +183,44 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
                                       data['ImagenURL'],
                                       fit: BoxFit.cover,
                                       width: double.infinity,
-                                      errorBuilder: (context, error, stackTrace) =>
-                                          const Icon(Icons.broken_image,
-                                              size: 60, color: Colors.grey),
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              const Icon(
+                                                Icons.broken_image,
+                                                size: 60,
+                                                color: Colors.grey,
+                                              ),
                                     ),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Text(data['NombreProducto'],
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold, fontSize: 16)),
+                                        Text(
+                                          data['NombreProducto'],
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
                                         const SizedBox(height: 4),
-                                        Text(data['Descripcion'] ?? '',
-                                            style: const TextStyle(
-                                                fontSize: 12, color: Colors.black54),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis),
+                                        Text(
+                                          data['Descripcion'] ?? '',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.black54,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                         const SizedBox(height: 8),
                                         Text('L. ${data['Precio']}'),
                                         const SizedBox(height: 8),
                                         ElevatedButton(
-                                          onPressed: () => mostrarDialogoCantidad(data),
+                                          onPressed: () =>
+                                              mostrarDialogoCantidad(data),
                                           child: const Text('Agregar'),
                                         ),
                                       ],
@@ -216,8 +246,10 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Carrito',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Carrito',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 10),
                   Expanded(
                     child: ListView.builder(
@@ -227,7 +259,9 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
                         return ListTile(
                           title: Text(item['nombre']),
                           subtitle: Text('Cantidad: ${item['cantidad']}'),
-                          trailing: Text('L. ${item['precio'] * item['cantidad']}'),
+                          trailing: Text(
+                            'L. ${item['precio'] * item['cantidad']}',
+                          ),
                         );
                       },
                     ),
@@ -245,7 +279,6 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
     );
   }
 
-
   Widget _buildMenuLateral(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width * 0.25,
@@ -255,12 +288,19 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
           const SizedBox(height: 40),
           Image.network('https://i.imgur.com/CK31nrT.png', height: 280),
           const SizedBox(height: 20),
-          const Text('CLIENTE',
-              style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+          const Text(
+            'MENU',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 30),
-          _buildMenuButton(context, 'INVENTARIO', '/inventario'),
-          _buildMenuButton(context, 'VENTAS', '/ventas'),
-          _buildMenuButton(context, 'FACTURA', '/factura'),
+          _buildMenuButton(context, 'INVENTARIO', '/inventarioCliente'),
+          _buildMenuButton(context, 'VENTA Y CARRITO', '/ventaCarrito'),
+          _buildMenuButton(context, 'FACTURAS', '/facturas'),
+          _buildMenuButton(context, 'VOLVER AL MENÚ', '/menuCliente'),
           const Spacer(),
           _isLoading
               ? const CircularProgressIndicator(color: Colors.white)
@@ -269,8 +309,10 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
                   children: [
                     const Icon(Icons.person, color: Colors.white),
                     const SizedBox(width: 8),
-                    Text(_nombreUsuario,
-                        style: const TextStyle(color: Colors.white, fontSize: 16)),
+                    Text(
+                      _nombreUsuario,
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                    ),
                   ],
                 ),
           const SizedBox(height: 10),
@@ -280,14 +322,16 @@ class _VentasClienteScreenState extends State<VentasClienteScreen> {
               Navigator.pushReplacementNamed(context, '/login');
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
-            child: const Text('CERRAR SESIÓN', style: TextStyle(color: Colors.orange)),
+            child: const Text(
+              'CERRAR SESIÓN',
+              style: TextStyle(color: Colors.orange),
+            ),
           ),
           const SizedBox(height: 40),
         ],
       ),
     );
   }
-
 
   // 📌 Botón modular
   Widget _buildMenuButton(BuildContext context, String text, String route) {
