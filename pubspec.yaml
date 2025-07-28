@@ -11,6 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  google_fonts: ^6.1.0           # Fuentes de Google
   fl_chart: ^1.0.0  # ✅ Gráficos compatibles
   firebase_core: ^2.30.0         # Inicialización de Firebase
   firebase_auth: ^4.17.0         # Autenticación de usuarios
@@ -32,6 +33,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/icons/
 
 
 

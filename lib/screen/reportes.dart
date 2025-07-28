@@ -25,7 +25,10 @@ class _ReportesScreenState extends State<ReportesScreen> {
       if (user == null) {
         Navigator.pushReplacementNamed(context, '/login');
       } else {
-        final doc = await FirebaseFirestore.instance.collection('usuarios').doc(user.uid).get();
+        final doc = await FirebaseFirestore.instance
+            .collection('usuarios')
+            .doc(user.uid)
+            .get();
         final data = doc.data();
         final rol = data?['rol'];
         if (rol != 'admin') {
@@ -43,13 +46,17 @@ class _ReportesScreenState extends State<ReportesScreen> {
 
   Future<void> _generarGananciasPorMes() async {
     try {
-      final snapshot = await FirebaseFirestore.instance.collection('facturas').get();
+      final snapshot = await FirebaseFirestore.instance
+          .collection('facturas')
+          .get();
       final Map<String, double> gananciaPorMes = {};
       final rand = Random();
 
       for (var doc in snapshot.docs) {
         final data = doc.data();
-        if (data.containsKey('fecha') && data['fecha'] != null && data.containsKey('total')) {
+        if (data.containsKey('fecha') &&
+            data['fecha'] != null &&
+            data.containsKey('total')) {
           final fecha = data['fecha'] is Timestamp
               ? (data['fecha'] as Timestamp).toDate()
               : DateTime.tryParse(data['fecha'].toString()) ?? DateTime.now();
@@ -71,14 +78,21 @@ class _ReportesScreenState extends State<ReportesScreen> {
         }
       }
 
-      ganancias = gananciaPorMes.entries
-          .map((e) => {'mes': e.key, 'total': e.value})
-          .toList()
-        ..sort((a, b) {
-          final fa = DateFormat('MMM yyyy', 'es_ES').parse(a['mes'].toString());
-          final fb = DateFormat('MMM yyyy', 'es_ES').parse(b['mes'].toString());
-          return fa.compareTo(fb);
-        });
+      ganancias =
+          gananciaPorMes.entries
+              .map((e) => {'mes': e.key, 'total': e.value})
+              .toList()
+            ..sort((a, b) {
+              final fa = DateFormat(
+                'MMM yyyy',
+                'es_ES',
+              ).parse(a['mes'].toString());
+              final fb = DateFormat(
+                'MMM yyyy',
+                'es_ES',
+              ).parse(b['mes'].toString());
+              return fa.compareTo(fb);
+            });
     } catch (e) {
       print('Error generando ganancias: $e');
       ganancias = [];
@@ -88,7 +102,10 @@ class _ReportesScreenState extends State<ReportesScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final totalGanancia = ganancias.fold(0.0, (suma, item) => suma + item['total']);
+    final totalGanancia = ganancias.fold(
+      0.0,
+      (suma, item) => suma + item['total'],
+    );
 
     return Scaffold(
       body: Row(
@@ -101,8 +118,14 @@ class _ReportesScreenState extends State<ReportesScreen> {
                 const SizedBox(height: 40),
                 Image.network('https://i.imgur.com/CK31nrT.png', height: 280),
                 const SizedBox(height: 20),
-                const Text('ADMIN',
-                    style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+                const Text(
+                  'MENU',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 30),
                 _buildMenuButton(context, 'INVENTARIO', '/inventarioAdmin'),
                 _buildMenuButton(context, 'REPORTES', '/reportes'),
@@ -116,8 +139,13 @@ class _ReportesScreenState extends State<ReportesScreen> {
                         children: [
                           const Icon(Icons.person, color: Colors.white),
                           const SizedBox(width: 8),
-                          Text(_nombreUsuario,
-                              style: const TextStyle(color: Colors.white, fontSize: 16)),
+                          Text(
+                            _nombreUsuario,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
                         ],
                       ),
                 const SizedBox(height: 10),
@@ -128,9 +156,15 @@ class _ReportesScreenState extends State<ReportesScreen> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
                   ),
-                  child: const Text('CERRAR SESIÓN', style: TextStyle(color: Colors.orange, fontSize: 16)),
+                  child: const Text(
+                    'CERRAR SESIÓN',
+                    style: TextStyle(color: Colors.orange, fontSize: 16),
+                  ),
                 ),
                 const SizedBox(height: 40),
               ],
@@ -155,17 +189,35 @@ class _ReportesScreenState extends State<ReportesScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('GANANCIA ESTIMADA',
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                      const Text(
+                        'GANANCIA ESTIMADA',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                       const SizedBox(height: 10),
-                      Text('Total Ganancia Simulada: L. ${totalGanancia.toStringAsFixed(2)}',
-                          style: const TextStyle(color: Colors.white, fontSize: 18)),
+                      Text(
+                        'Total Ganancia Simulada: L. ${totalGanancia.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
+                      ),
                       const SizedBox(height: 20),
                       _isLoading
-                          ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                          ? const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            )
                           : ganancias.isEmpty
-                              ? const Text('Sin datos para graficar.', style: TextStyle(color: Colors.white))
-                              : SizedBox(height: 300, child: _buildLineChart()),
+                          ? const Text(
+                              'Sin datos para graficar.',
+                              style: TextStyle(color: Colors.white),
+                            )
+                          : SizedBox(height: 300, child: _buildLineChart()),
                     ],
                   ),
                 ),
@@ -187,8 +239,10 @@ class _ReportesScreenState extends State<ReportesScreen> {
               getTitlesWidget: (value, _) {
                 final index = value.toInt();
                 if (index < ganancias.length) {
-                  return Text(ganancias[index]['mes'],
-                      style: const TextStyle(color: Colors.white, fontSize: 10));
+                  return Text(
+                    ganancias[index]['mes'],
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
+                  );
                 }
                 return const Text('');
               },
@@ -220,7 +274,10 @@ class _ReportesScreenState extends State<ReportesScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
         onPressed: () => Navigator.pushReplacementNamed(context, route),
-        child: Text(label, style: const TextStyle(color: Colors.orange, fontSize: 16)),
+        child: Text(
+          label,
+          style: const TextStyle(color: Colors.orange, fontSize: 16),
+        ),
       ),
     );
   }

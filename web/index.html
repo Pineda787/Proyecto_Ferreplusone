@@ -23,14 +23,22 @@
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="flutter_application_1">
+  <meta name="apple-mobile-web-app-title" content="inventario_ferreteria">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>flutter_application_1</title>
+  <title>inventario_ferreteria</title>
   <link rel="manifest" href="manifest.json">
+  
+  <!-- Firebase compatibility configuration -->
+  <script>
+    // Configure Firebase for better web compatibility
+    if (typeof window !== 'undefined') {
+      window.flutterfire_ignore_scripts = true;
+    }
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>

@@ -18,41 +18,83 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   bool _obscurePassword = true;
 
+  @override
+  void initState() {
+    super.initState();
+    _checkFirebaseConnection();
+  }
+
+  void _checkFirebaseConnection() {
+    try {
+      print("🔥 Firebase Auth inicializado: ${_auth.app.name}");
+      print("🔥 Estado de usuario actual: ${_auth.currentUser}");
+    } catch (e) {
+      print("❌ Error al verificar Firebase Auth: $e");
+    }
+  }
+
   void _handleLogin() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+    if (_formKey.currentState?.validate() == true) {
+      _formKey.currentState?.save();
       _email = _email.trim().toLowerCase();
       setState(() => _isLoading = true);
 
       try {
+        print("🔐 Intentando hacer login con email: $_email");
+
         UserCredential userCredential = await _auth.signInWithEmailAndPassword(
           email: _email,
           password: _password,
         );
 
+        // Check if user exists before accessing
+        if (userCredential.user == null) {
+          print("❌ Usuario nulo después del login");
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Error: Usuario no válido')),
+          );
+          return;
+        }
+
+        print("✅ Login exitoso, UID: ${userCredential.user!.uid}");
+
         final uid = userCredential.user!.uid;
+        print("📄 Buscando documento de usuario en Firestore...");
+
         DocumentSnapshot userDoc = await FirebaseFirestore.instance
             .collection('usuarios')
             .doc(uid)
             .get();
 
+        print("📄 Documento obtenido, existe: ${userDoc.exists}");
+
         final data = userDoc.data() as Map<String, dynamic>?;
+        print("📄 Datos del usuario: $data");
+
         if (data == null || !data.containsKey('rol')) {
+          print("❌ Perfil incompleto o rol no definido");
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Perfil incompleto o rol no definido')),
+            const SnackBar(
+              content: Text('Perfil incompleto o rol no definido'),
+            ),
           );
           return;
         }
 
         String role = data['rol'];
+        print("👤 Rol del usuario: $role");
+
         if (role == 'admin') {
+          print("🚀 Navegando a /menuAdmin");
           Navigator.pushReplacementNamed(context, '/menuAdmin');
         } else if (role == 'cliente') {
+          print("🚀 Navegando a /menuCliente");
           Navigator.pushReplacementNamed(context, '/menuCliente');
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Rol desconocido')),
-          );
+          print("❌ Rol desconocido: $role");
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Rol desconocido')));
           Navigator.pushReplacementNamed(context, '/');
         }
       } on FirebaseAuthException catch (e) {
@@ -62,13 +104,18 @@ class _LoginScreenState extends State<LoginScreen> {
           'invalid-email' => 'Correo inválido',
           _ => e.message ?? 'Error de autenticación',
         };
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error inesperado: $e')),
-        );
+        print("❌ Error inesperado en login: $e");
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error inesperado: $e')));
       } finally {
-        setState(() => _isLoading = false);
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
     }
   }
@@ -85,10 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 40),
-                Image.network(
-                  'https://i.imgur.com/CK31nrT.png',
-                  height: 280,
-                ),
+                Image.network('https://i.imgur.com/CK31nrT.png', height: 280),
                 const SizedBox(height: 20),
                 Text('MENU', style: menuTextStyle),
                 const SizedBox(height: 40),
@@ -173,7 +217,8 @@ class _LoginScreenState extends State<LoginScreen> {
             decoration: const InputDecoration(labelText: 'Correo Electrónico'),
             validator: (value) {
               final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-              if (value == null || value.isEmpty) return 'El correo es requerido';
+              if (value == null || value.isEmpty)
+                return 'El correo es requerido';
               if (!emailRegex.hasMatch(value)) return 'Correo inválido';
               return null;
             },
@@ -204,10 +249,16 @@ class _LoginScreenState extends State<LoginScreen> {
               : ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 15,
+                    ),
                   ),
                   onPressed: _handleLogin,
-                  child: const Text('Iniciar Sesión', style: TextStyle(fontSize: 18)),
+                  child: const Text(
+                    'Iniciar Sesión',
+                    style: TextStyle(fontSize: 18),
+                  ),
                 ),
           TextButton(
             onPressed: () {

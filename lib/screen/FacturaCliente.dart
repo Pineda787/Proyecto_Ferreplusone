@@ -31,7 +31,10 @@ class _FacturaClienteScreenState extends State<FacturaClienteScreen> {
 
   void _cargarNombreUsuario(String uid) async {
     try {
-      final doc = await FirebaseFirestore.instance.collection('usuarios').doc(uid).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(uid)
+          .get();
       setState(() {
         _nombreUsuario = doc.data()?['nombre'] ?? 'Usuario';
         _isLoading = false;
@@ -48,12 +51,15 @@ class _FacturaClienteScreenState extends State<FacturaClienteScreen> {
     final detalles = factura['detalles'] as List<dynamic>? ?? [];
 
     final fechaFormateada = factura['fecha'] is Timestamp
-      ? DateFormat('dd/MM/yyyy').format((factura['fecha'] as Timestamp).toDate())
-      : factura['fecha'] is String
-          ? factura['fecha']
-          : 'Sin fecha';
+        ? DateFormat(
+            'dd/MM/yyyy',
+          ).format((factura['fecha'] as Timestamp).toDate())
+        : factura['fecha'] is String
+        ? factura['fecha']
+        : 'Sin fecha';
 
-    String contenido = '''
+    String contenido =
+        '''
 FACTURA
 -------
 
@@ -69,7 +75,7 @@ DETALLES:
     } else {
       for (var item in detalles) {
         contenido +=
-          '${item['nombre']} - Cantidad: ${item['cantidad']} - Precio unitario: L. ${item['precio']} - Subtotal: L. ${item['precio'] * item['cantidad']}\n';
+            '${item['nombre']} - Cantidad: ${item['cantidad']} - Precio unitario: L. ${item['precio']} - Subtotal: L. ${item['precio'] * item['cantidad']}\n';
       }
     }
 
@@ -84,7 +90,10 @@ DETALLES:
     html.Url.revokeObjectUrl(url);
   }
 
-  Future<void> _guardarFacturaReal(Map<String, dynamic> productos, double total) async {
+  Future<void> _guardarFacturaReal(
+    Map<String, dynamic> productos,
+    double total,
+  ) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
@@ -96,11 +105,15 @@ DETALLES:
       'clienteNombre': _nombreUsuario,
       'usuarioQueFacturó': uid,
       'esPrueba': false, // ✅ facturas válidas
-      'detalles': productos.entries.map((e) => {
-        'nombre': e.key,
-        'cantidad': e.value['cantidad'],
-        'precio': e.value['precio'],
-      }).toList(),
+      'detalles': productos.entries
+          .map(
+            (e) => {
+              'nombre': e.key,
+              'cantidad': e.value['cantidad'],
+              'precio': e.value['precio'],
+            },
+          )
+          .toList(),
     };
 
     try {
@@ -129,20 +142,24 @@ DETALLES:
                 const SizedBox(height: 20),
                 Text('MENU', style: menuTextStyle),
                 const SizedBox(height: 30),
-                _buildMenuButton(context, 'INVENTARIO', '/inventario'),
-                _buildMenuButton(context, 'VENTAS', '/ventas'),
-                _buildMenuButton(context, 'FACTURA', '/factura'),
+                _buildMenuButton(context, 'INVENTARIO', '/inventarioCliente'),
+                _buildMenuButton(context, 'VENTA Y CARRITO', '/ventaCarrito'),
+                _buildMenuButton(context, 'FACTURAS', '/facturas'),
+                _buildMenuButton(context, 'VOLVER AL MENÚ', '/menuCliente'),
                 const Spacer(),
                 _isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.person, color: Colors.white),
-                        const SizedBox(width: 8),
-                        Text(_nombreUsuario, style: const TextStyle(color: Colors.white)),
-                      ],
-                    ),
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.person, color: Colors.white),
+                          const SizedBox(width: 8),
+                          Text(
+                            _nombreUsuario,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
                 const SizedBox(height: 10),
                 ElevatedButton(
                   style: menuButtonStyle,
@@ -165,46 +182,62 @@ DETALLES:
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('FACTURAS EMITIDAS',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'FACTURAS EMITIDAS',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 20),
                   Expanded(
                     child: StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance
-                        .collection('facturas')
-                        .where('clienteId', isEqualTo: uid)
-                        .snapshots(),
+                          .collection('facturas')
+                          .where('clienteId', isEqualTo: uid)
+                          .snapshots(),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
                         }
                         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                          return const Center(child: Text('No hay facturas disponibles.'));
+                          return const Center(
+                            child: Text('No hay facturas disponibles.'),
+                          );
                         }
 
                         final facturas = snapshot.data!.docs;
                         return ListView.builder(
                           itemCount: facturas.length,
                           itemBuilder: (context, index) {
-                            final factura = facturas[index].data() as Map<String, dynamic>;
-                            final fechaFormateada = factura['fecha'] is Timestamp
-                              ? DateFormat('dd/MM/yyyy').format((factura['fecha'] as Timestamp).toDate())
-                              : factura['fecha'] is String
-                                  ? factura['fecha']
-                                  : 'Sin fecha';
+                            final factura =
+                                facturas[index].data() as Map<String, dynamic>;
+                            final fechaFormateada =
+                                factura['fecha'] is Timestamp
+                                ? DateFormat('dd/MM/yyyy').format(
+                                    (factura['fecha'] as Timestamp).toDate(),
+                                  )
+                                : factura['fecha'] is String
+                                ? factura['fecha']
+                                : 'Sin fecha';
 
                             return Card(
                               margin: const EdgeInsets.symmetric(vertical: 8),
                               child: ListTile(
-                                title: Text('Factura #${factura['numero'] ?? 'N/A'}'),
-                                subtitle: Text('Total: L. ${factura['total'] ?? 0}'),
+                                title: Text(
+                                  'Factura #${factura['numero'] ?? 'N/A'}',
+                                ),
+                                subtitle: Text(
+                                  'Total: L. ${factura['total'] ?? 0}',
+                                ),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(fechaFormateada),
                                     IconButton(
                                       icon: const Icon(Icons.download),
-                                      onPressed: () => _descargarFacturaWeb(factura),
+                                      onPressed: () =>
+                                          _descargarFacturaWeb(factura),
                                     ),
                                   ],
                                 ),

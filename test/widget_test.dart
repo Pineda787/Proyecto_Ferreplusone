@@ -1,31 +1,34 @@
-// This is a basic Flutter widget test.
+// Test básico para la aplicación de inventario de ferretería.
 //
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// Para realizar una interacción con un widget en tu test, usa WidgetTester
+// utility en el paquete flutter_test. Por ejemplo, puedes enviar gestos de tap y scroll.
+// También puedes usar WidgetTester para encontrar widgets hijos en el árbol de widgets,
+// leer texto, y verificar que los valores de las propiedades del widget son correctos.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_proyecto/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-
+import 'package:flutter_proyecto/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Ferretería app loads home screen', (WidgetTester tester) async {
+    // Construye nuestra app y dispara un frame.
+    await tester.pumpWidget(MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verifica que la pantalla principal se carga correctamente.
+    // Busca elementos típicos de la pantalla de inicio
+    expect(find.byType(Scaffold), findsOneWidget);
+    expect(find.byType(Container), findsWidgets);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Verifica que la app se construye sin errores
+    expect(tester.takeException(), isNull);
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('MyApp creates MaterialApp', (WidgetTester tester) async {
+    // Construye la app
+    await tester.pumpWidget(MyApp());
+
+    // Verifica que se crea una MaterialApp
+    expect(find.byType(MaterialApp), findsOneWidget);
   });
 }

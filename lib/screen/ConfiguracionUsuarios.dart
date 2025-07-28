@@ -10,7 +10,8 @@ class ConfiguracionUsuariosScreen extends StatefulWidget {
       _ConfiguracionUsuariosScreenState();
 }
 
-class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScreen> {
+class _ConfiguracionUsuariosScreenState
+    extends State<ConfiguracionUsuariosScreen> {
   String _nombreAdmin = '';
   bool _isLoading = true;
   final List<String> _rolesDisponibles = ['admin', 'cliente'];
@@ -30,7 +31,10 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
 
   void _cargarNombreAdmin(String uid) async {
     try {
-      final doc = await FirebaseFirestore.instance.collection('usuarios').doc(uid).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(uid)
+          .get();
       final datos = doc.data();
       setState(() {
         _nombreAdmin = datos?['nombre'] ?? 'Administrador';
@@ -45,10 +49,15 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
     }
   }
 
-  void _mostrarDialogoEditarUsuario(String docId, Map<String, dynamic> usuario) {
+  void _mostrarDialogoEditarUsuario(
+    String docId,
+    Map<String, dynamic> usuario,
+  ) {
     final nombreController = TextEditingController(text: usuario['nombre']);
     final correoController = TextEditingController(text: usuario['correo']);
-    String rolTemp = _rolesDisponibles.contains(usuario['rol']) ? usuario['rol'] : 'cliente';
+    String rolTemp = _rolesDisponibles.contains(usuario['rol'])
+        ? usuario['rol']
+        : 'cliente';
 
     showDialog(
       context: context,
@@ -58,13 +67,23 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(controller: nombreController, decoration: const InputDecoration(labelText: 'Nombre')),
-              TextField(controller: correoController, decoration: const InputDecoration(labelText: 'Correo')),
+              TextField(
+                controller: nombreController,
+                decoration: const InputDecoration(labelText: 'Nombre'),
+              ),
+              TextField(
+                controller: correoController,
+                decoration: const InputDecoration(labelText: 'Correo'),
+              ),
               const SizedBox(height: 10),
               DropdownButton<String>(
                 value: rolTemp,
                 isExpanded: true,
-                items: _rolesDisponibles.map((rol) => DropdownMenuItem(value: rol, child: Text(rol))).toList(),
+                items: _rolesDisponibles
+                    .map(
+                      (rol) => DropdownMenuItem(value: rol, child: Text(rol)),
+                    )
+                    .toList(),
                 onChanged: (value) {
                   if (value != null) {
                     setDialogState(() => rolTemp = value);
@@ -74,20 +93,29 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
             ElevatedButton(
               onPressed: () async {
-                if (nombreController.text.trim().isEmpty || correoController.text.trim().isEmpty) {
+                if (nombreController.text.trim().isEmpty ||
+                    correoController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Nombre y correo no pueden estar vacíos')),
+                    const SnackBar(
+                      content: Text('Nombre y correo no pueden estar vacíos'),
+                    ),
                   );
                   return;
                 }
-                await FirebaseFirestore.instance.collection('usuarios').doc(docId).update({
-                  'nombre': nombreController.text,
-                  'correo': correoController.text,
-                  'rol': rolTemp,
-                });
+                await FirebaseFirestore.instance
+                    .collection('usuarios')
+                    .doc(docId)
+                    .update({
+                      'nombre': nombreController.text,
+                      'correo': correoController.text,
+                      'rol': rolTemp,
+                    });
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Usuario actualizado')),
                 );
@@ -106,9 +134,14 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirmar eliminación'),
-        content: const Text('¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.'),
+        content: const Text(
+          '¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
             onPressed: () => Navigator.pop(context, true),
@@ -119,7 +152,10 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
     );
 
     if (confirm == true) {
-      await FirebaseFirestore.instance.collection('usuarios').doc(docId).delete();
+      await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(docId)
+          .delete();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Usuario eliminado exitosamente')),
       );
@@ -139,21 +175,32 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('CONFIGURACIÓN DE USUARIOS',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'CONFIGURACIÓN DE USUARIOS',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 20),
                   Expanded(
                     child: StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance.collection('usuarios').snapshots(),
+                      stream: FirebaseFirestore.instance
+                          .collection('usuarios')
+                          .snapshots(),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
                         }
                         if (snapshot.hasError) {
-                          return Center(child: Text('Error: ${snapshot.error}'));
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
                         }
                         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                          return const Center(child: Text('No hay usuarios registrados.'));
+                          return const Center(
+                            child: Text('No hay usuarios registrados.'),
+                          );
                         }
 
                         final usuarios = snapshot.data!.docs;
@@ -161,7 +208,8 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
                         return ListView.builder(
                           itemCount: usuarios.length,
                           itemBuilder: (context, index) {
-                            final usuario = usuarios[index].data() as Map<String, dynamic>;
+                            final usuario =
+                                usuarios[index].data() as Map<String, dynamic>;
                             final docId = usuarios[index].id;
 
                             return Card(
@@ -174,7 +222,9 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(usuario['correo'] ?? 'Sin correo'),
-                                    Text('Rol: ${usuario['rol'] ?? 'No definido'}'),
+                                    Text(
+                                      'Rol: ${usuario['rol'] ?? 'No definido'}',
+                                    ),
                                   ],
                                 ),
                                 isThreeLine: true,
@@ -182,12 +232,23 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
                                   spacing: 12,
                                   children: [
                                     IconButton(
-                                      icon: const Icon(Icons.edit, color: Colors.blueAccent),
-                                      onPressed: () => _mostrarDialogoEditarUsuario(docId, usuario),
+                                      icon: const Icon(
+                                        Icons.edit,
+                                        color: Colors.blueAccent,
+                                      ),
+                                      onPressed: () =>
+                                          _mostrarDialogoEditarUsuario(
+                                            docId,
+                                            usuario,
+                                          ),
                                     ),
                                     IconButton(
-                                      icon: const Icon(Icons.delete, color: Colors.orange),
-                                      onPressed: () => _confirmarEliminacionUsuario(docId),
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        color: Colors.orange,
+                                      ),
+                                      onPressed: () =>
+                                          _confirmarEliminacionUsuario(docId),
                                     ),
                                   ],
                                 ),
@@ -214,13 +275,28 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
       child: Column(
         children: [
           const SizedBox(height: 40),
-          Image.network('https://i.imgur.com/CK31nrT.png', height: 280, fit: BoxFit.contain),
+          Image.network(
+            'https://i.imgur.com/CK31nrT.png',
+            height: 280,
+            fit: BoxFit.contain,
+          ),
           const SizedBox(height: 20),
-          const Text('ADMIN', style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+          const Text(
+            'MENU',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 30),
-                _buildMenuButton(context, 'INVENTARIO', '/inventarioAdmin'),
-                _buildMenuButton(context, 'REPORTES', '/reportes'),
-                _buildMenuButton(context, 'CONFIGURACIÓN DE USUARIOS', '/configuracion'),
+          _buildMenuButton(context, 'INVENTARIO', '/inventarioAdmin'),
+          _buildMenuButton(context, 'REPORTES', '/reportes'),
+          _buildMenuButton(
+            context,
+            'CONFIGURACIÓN DE USUARIOS',
+            '/configuracion',
+          ),
           _buildMenuButton(context, 'VOLVER AL MENÚ', '/menuAdmin'),
           const Spacer(),
           _isLoading
@@ -230,7 +306,10 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
                   children: [
                     const Icon(Icons.person, color: Colors.white),
                     const SizedBox(width: 8),
-                    Text(_nombreAdmin, style: const TextStyle(color: Colors.white, fontSize: 16)),
+                    Text(
+                      _nombreAdmin,
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                    ),
                   ],
                 ),
           const SizedBox(height: 10),
@@ -243,14 +322,16 @@ class _ConfiguracionUsuariosScreenState extends State<ConfiguracionUsuariosScree
               await FirebaseAuth.instance.signOut();
               Navigator.pushReplacementNamed(context, '/login');
             },
-            child: const Text('CERRAR SESIÓN', style: TextStyle(color: Colors.orange)),
+            child: const Text(
+              'CERRAR SESIÓN',
+              style: TextStyle(color: Colors.orange),
+            ),
           ),
           const SizedBox(height: 40),
         ],
       ),
     );
   }
-
 
   Widget _buildMenuButton(BuildContext context, String label, String route) {
     return Padding(
