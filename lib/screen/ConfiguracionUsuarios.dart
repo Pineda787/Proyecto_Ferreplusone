@@ -166,7 +166,7 @@ class _ConfiguracionUsuariosScreenState
     }
   }
 
-  @override
+  
   Widget _buildPanelConLista() {
   return Container(
     color: Colors.white,
@@ -267,11 +267,13 @@ class _ConfiguracionUsuariosScreenState
           ),
         ),
         Container(color: Colors.black.withOpacity(0.6)),
-        const ListaUsuarios(),
+        ListaUsuarios(
+              onEliminarUsuario: _confirmarEliminacionUsuario,
+              onEditarUsuario: _mostrarDialogoEditarUsuario, 
+            ),
       ],
     );
   }
-
 
 
   Widget _buildMenuButton(BuildContext context, String label, String route) {

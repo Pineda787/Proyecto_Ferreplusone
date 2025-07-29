@@ -170,7 +170,7 @@ class _FacturaClienteScreenState extends State<FacturaClienteScreen> {
   }
 
 
-  @override
+  
     Widget _buildFacturaDetalle(Map<String, dynamic> factura) {
     return Scaffold(
       appBar: AppBar(
@@ -306,12 +306,23 @@ class _FacturaClienteScreenState extends State<FacturaClienteScreen> {
                                     IconButton(
                                       icon: const Icon(Icons.download),
                                       tooltip: 'Descargar TXT',
-                                      onPressed: _descargarFacturaTXT,
+                                      onPressed: () {
+                                                  setState(() {
+                                                    facturaSeleccionada = factura; 
+                                                  });
+                                                  _descargarFacturaTXT(); 
+                                                },
                                     ),
                                     IconButton(
                                       icon: const Icon(Icons.picture_as_pdf),
                                       tooltip: 'Descargar PDF',
-                                      onPressed: _descargarFacturaPDF,
+                                      onPressed: () {
+                                                setState(() {
+                                                  facturaSeleccionada = factura; 
+                                                });
+                                                _descargarFacturaPDF(); 
+                                              },
+
                                     ),
                                   ],
                                 ),
